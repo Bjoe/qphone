@@ -1,0 +1,5 @@
+
+// Verzeichnis
+#define SQLTESTFILE "@SQLTESTFILE@"
+#define DATABASE "@DATABASE@"
+#define DATABASEDRIVER "@DATABASEDRIVER@"
