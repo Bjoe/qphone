@@ -34,11 +34,11 @@ void QPhone::onLogin()
 
     qpjsua::MediaConfiguration mediaConfiguration = qpjsua::MediaConfiguration::build();
 
-    engine = qpjsua::Engine::Builder::create()
+    engine = qpjsua::Engine::build()
             .withLoggingConfiguration(loggingConfiguration)
             .withMediaConfiguration(mediaConfiguration)
             .withTransportConfiguration(transportConfiguration)
-            .build();
+            .create();
     out(engine->lastError(), "Create Engine");
     if(engine->isValid() == false) {
         return;
