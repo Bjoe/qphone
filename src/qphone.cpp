@@ -23,36 +23,16 @@ void QPhone::onLogin()
 {
     QSettings settings;
     //settings.setValue("foo", "bar");
-    QString realm = settings.value("realm").toString();
-    QString scheme = settings.value("scheme").toString();
-    QString username = settings.value("username").toString();
-    QString password = settings.value("password").toString();
-    QString registration = settings.value("registration").toString();
-    QString sip = settings.value("sip").toString();
-    QString proxy = settings.value("proxy").toString();
+    unsigned sipPort = settings.value("sip.port").toUInt();
 
     qpjsua::LoggingConfiguration loggingConfiguration = qpjsua::LoggingConfiguration::build()
-            .withConsoleLevel(4)
+            .withConsoleLevel(9999999)
             .withLogOutput(this, SLOT(onLog(int,QString)));
 
     qpjsua::TransportConfiguration transportConfiguration = qpjsua::TransportConfiguration::build()
-            .withPort(5060);
+            .withPort(sipPort);
 
     qpjsua::MediaConfiguration mediaConfiguration = qpjsua::MediaConfiguration::build();
-
-    qpjsua::AccountCredential *credential = qpjsua::AccountCredential::build()
-            .withRealm(realm)
-            .withScheme(scheme)
-            .withUsername(username)
-            .withPasswordType(PJSIP_CRED_DATA_PLAIN_PASSWD)
-            .withPassword(password)
-            .create();
-    qpjsua::AccountConfiguration *accountConfiguration = qpjsua::AccountConfiguration::build()
-            .withRegistrationUri("sip:" + registration)
-            .withSipUrl("sip:" + sip)
-            .addCredential(credential)
-            .addProxy("sip:" + proxy)
-            .create();
 
     engine = qpjsua::Engine::Builder::create()
             .withLoggingConfiguration(loggingConfiguration)
@@ -79,6 +59,30 @@ void QPhone::onLogin()
                     SIGNAL(regStarted(qpjsua::AccountInfo, bool)),
                     SLOT(onRegStarted(qpjsua::AccountInfo, bool)),
                     Qt::QueuedConnection);
+
+    QString realm = settings.value("realm").toString();
+    QString scheme = settings.value("scheme").toString();
+    QString username = settings.value("username").toString();
+    QString password = settings.value("password").toString();
+    QString registration = settings.value("registration").toString();
+    QString sip = settings.value("sip").toString();
+    QString proxy = settings.value("proxy").toString();
+    unsigned rtpPort = settings.value("rtp.port").toUInt();
+
+    qpjsua::AccountCredential *credential = qpjsua::AccountCredential::build()
+            .withRealm(realm)
+            .withScheme(scheme)
+            .withUsername(username)
+            .withPasswordType(PJSIP_CRED_DATA_PLAIN_PASSWD)
+            .withPassword(password)
+            .create();
+    qpjsua::AccountConfiguration *accountConfiguration = qpjsua::AccountConfiguration::build()
+            .withRegistrationUri("sip:" + registration)
+            .withSipUrl("sip:" + sip)
+            .withRtpPort(rtpPort)
+            .addCredential(credential)
+            .addProxy("sip:" + proxy)
+            .create();
 
     engine->addAccount(accountConfiguration);
 
