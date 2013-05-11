@@ -6,6 +6,7 @@ Rectangle {
     height: 62
     radius: 10
     border.width: 2
+    anchors.margins: 5
 
     //determines the color of the button by using the conditional operator
     color: buttonMouseArea.pressed ? Qt.darker(buttonColor, 1.5) : buttonColor
