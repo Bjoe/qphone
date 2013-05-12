@@ -19,6 +19,8 @@ class QPhone : public QObject
 
 public:
     explicit QPhone(QObject *parent = 0);
+
+    pjsua_acc_id getAccountId();
     void show();
     void out(const qpjsua::PjError &anError, const QString &aMessage);
 
@@ -45,6 +47,7 @@ private:
 
     qpjsua::Engine *engine;
     QTextStream outStream;
+    pjsua_acc_id accountId;
 };
 
 } // namespace qphone

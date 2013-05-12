@@ -26,6 +26,19 @@ QPhoneView::QPhoneView(QObject *parent) :
     view->show();
 }
 
+void QPhoneView::setButtonText(const QString &aText)
+{
+    QQuickItem *rootObject = view->rootObject();
+    QQmlProperty(rootObject, "qAcceptText").write(aText);
+}
+
+QString QPhoneView::getCallNumber()
+{
+    QQuickItem *rootObject = view->rootObject();
+    QVariant value = QQmlProperty(rootObject, "qCallNumber").read();
+    return value.toString();
+}
+
 void QPhoneView::onLogin()
 {
     emit login();
@@ -93,8 +106,8 @@ void QPhoneView::accountInfoOut(qpjsua::AccountInfo anAccountInfo)
     } else {
         state.append("Client is not registered\n");
     }
-    state.append(anAccountInfo.getStatusText() + "\n");
-    state.append(anAccountInfo.getLastError() + "\n");
+    state.append(QString("Status Text: %1\n").arg(anAccountInfo.getStatusText()));
+    state.append(QString("Last Error: %1\n").arg(anAccountInfo.getLastError()));
 
     QQuickItem *item = view->rootObject();
     QQmlProperty(item, "qState").write(state);

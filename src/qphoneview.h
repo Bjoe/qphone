@@ -14,6 +14,8 @@ class QPhoneView : public QObject
 public:
     explicit QPhoneView(QObject *parent = 0);
     
+    void setButtonText(const QString &aText);
+    QString getCallNumber();
     void accountInfoOut(qpjsua::AccountInfo anAccountInfo);
     void callInfoOut(qpjsua::CallInfo aCallInfo);
 

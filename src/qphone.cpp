@@ -15,8 +15,13 @@
 namespace qphone {
 
 QPhone::QPhone(QObject *parent) : QObject(parent),
-    engine(nullptr), outStream(stdout)
+    engine(nullptr), outStream(stdout), accountId(0)
 {
+}
+
+pjsua_acc_id QPhone::getAccountId()
+{
+    return accountId;
 }
 
 void QPhone::onLogin()
@@ -84,7 +89,7 @@ void QPhone::onLogin()
             .addProxy("sip:" + proxy)
             .create();
 
-    engine->addAccount(accountConfiguration);
+    accountId = engine->addAccount(accountConfiguration);
 
     out(engine->lastError(), "Add account");
     if(engine->isValid() == false) {

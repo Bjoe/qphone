@@ -5,6 +5,7 @@
 
 #include <pjsua-lib/pjsua.h>
 
+#include "qphone.h"
 #include "qphoneview.h"
 #include "accountinfo.h"
 #include "callinfo.h"
@@ -15,7 +16,7 @@ class Acceptor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Acceptor(QPhoneView *aView, QObject *parent = 0);
+    explicit Acceptor(QPhone *aPhone, QPhoneView *aView, QObject *parent = 0);
     
 signals:
     
@@ -29,10 +30,13 @@ public slots:
     void onCancel();
     void onRing();
     void onAccept();
+    void onHangup();
+    void onCall();
 
 private:
+    QPhone *phone;
     QPhoneView *view;
-    qpjsua::CallInfo callInfo;
+    pjsua_call_id callId;
     pjsip_status_code code;
 };
 
