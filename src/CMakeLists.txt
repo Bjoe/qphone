@@ -2,7 +2,7 @@
 set(QT_SRCS
     qphone.cpp
     qphoneview.cpp
-    acceptor.cpp
+    qphonehandler.cpp
     call.cpp
 )
 

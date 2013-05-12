@@ -1,5 +1,5 @@
-#ifndef QPHONE_ACCEPTOR_H
-#define QPHONE_ACCEPTOR_H
+#ifndef QPHONE_QPHONEHANDLER_H
+#define QPHONE_QPHONEHANDLER_H
 
 #include <QObject>
 
@@ -12,11 +12,11 @@
 
 namespace qphone {
 
-class Acceptor : public QObject
+class QPhoneHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit Acceptor(QPhone *aPhone, QPhoneView *aView, QObject *parent = 0);
+    explicit QPhoneHandler(QPhone *aPhone, QPhoneView *aView, QObject *parent = 0);
     
 signals:
     
@@ -42,4 +42,4 @@ private:
 
 } // namespace qphone
 
-#endif // QPHONE_ACCEPTOR_H
+#endif // QPHONE_QPHONEHANDLER_H

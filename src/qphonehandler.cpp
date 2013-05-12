@@ -1,15 +1,15 @@
-#include "acceptor.h"
+#include "qphonehandler.h"
 
 namespace qphone {
 
-Acceptor::Acceptor(QPhone *aPhone, QPhoneView *aView, QObject *parent) :
+QPhoneHandler::QPhoneHandler(QPhone *aPhone, QPhoneView *aView, QObject *parent) :
     QObject(parent), phone(aPhone), view(aView), callId(), code(PJSIP_SC_RINGING)
 {
     view->setButtonText("Anrufen");
     connect(view, SIGNAL(accept()), SLOT(onCall()));
 }
 
-void Acceptor::onIncomingCall(qpjsua::AccountInfo anAccountInfo, qpjsua::CallInfo aCallInfo)
+void QPhoneHandler::onIncomingCall(qpjsua::AccountInfo anAccountInfo, qpjsua::CallInfo aCallInfo)
 {
     view->accountInfoOut(anAccountInfo);
     view->callInfoOut(aCallInfo);
@@ -21,7 +21,7 @@ void Acceptor::onIncomingCall(qpjsua::AccountInfo anAccountInfo, qpjsua::CallInf
     connect(view, SIGNAL(accept()), SLOT(onAccept()));
 }
 
-void Acceptor::onCallState(qpjsua::CallInfo aCallInfo)
+void QPhoneHandler::onCallState(qpjsua::CallInfo aCallInfo)
 {
     view->callInfoOut(aCallInfo);
 
@@ -31,7 +31,7 @@ void Acceptor::onCallState(qpjsua::CallInfo aCallInfo)
     }
 }
 
-void Acceptor::onCallMediaState(qpjsua::CallInfo aCallInfo)
+void QPhoneHandler::onCallMediaState(qpjsua::CallInfo aCallInfo)
 {
     view->callInfoOut(aCallInfo);
 
@@ -44,40 +44,40 @@ void Acceptor::onCallMediaState(qpjsua::CallInfo aCallInfo)
     }
 }
 
-void Acceptor::onRegStarted(qpjsua::AccountInfo anAccountInfo, bool renew)
+void QPhoneHandler::onRegStarted(qpjsua::AccountInfo anAccountInfo, bool renew)
 {
     Q_UNUSED(renew);
     view->accountInfoOut(anAccountInfo);
 }
 
-void Acceptor::onBusy()
+void QPhoneHandler::onBusy()
 {
     code = PJSIP_SC_BUSY_HERE;
 }
 
-void Acceptor::onCancel()
+void QPhoneHandler::onCancel()
 {
     pjsua_call_answer(callId, PJSIP_SC_TEMPORARILY_UNAVAILABLE, nullptr, nullptr);
 }
 
-void Acceptor::onRing()
+void QPhoneHandler::onRing()
 {
     code = PJSIP_SC_RINGING;
 }
 
-void Acceptor::onAccept()
+void QPhoneHandler::onAccept()
 {
     pjsua_call_answer(callId, PJSIP_SC_OK, nullptr, nullptr);
 }
 
-void Acceptor::onHangup()
+void QPhoneHandler::onHangup()
 {
     pjsua_call_hangup(callId, 0, nullptr, nullptr);
     view->setButtonText("Anrufen");
     connect(view, SIGNAL(accept()), SLOT(onCall()));
 }
 
-void Acceptor::onCall()
+void QPhoneHandler::onCall()
 {
     QString callNumber = view->getCallNumber();
     QByteArray chr = callNumber.toLatin1();
