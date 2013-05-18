@@ -5,8 +5,6 @@
 
 #include <QByteArray>
 
-#include <QDebug>
-
 #include "loggingconfiguration.h"
 #include "mediaconfiguration.h"
 #include "transportconfiguration.h"
