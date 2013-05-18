@@ -85,6 +85,7 @@ void QPhone::onLogin()
             .withRegistrationUri("sip:" + registration)
             .withSipUrl("sip:" + sip)
             .withRtpPort(rtpPort)
+            .withAllowContactRewrite(false)
             .addCredential(credential)
             .addProxy("sip:" + proxy)
             .create();
