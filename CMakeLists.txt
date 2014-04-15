@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.11)
 
 project(QPhone)
 
@@ -17,15 +17,27 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
+# QML debuggen
+#add_definitions(-DQT_QML_DEBUG)
+# and set environment
+# QML_COMPILER_DUMP=1
+# QML_DISABLE_OPTIMIZER=1
+# argument:
+# $ executable -qmljsdebugger=port:3768,block
+
 #SET(ENV{PKG_CONFIG_PATH} "foo/bar/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 # find_package(PkgConfig)
 # pkg_check_modules(FOO foo)
 # include_directories(${FOO_INCLUDE_DIRS})
 # link_directories(${FOO_LIBRARY_DIRS})
+# target_link_libraries(${FOO_LDFLAGS})
 
 # cmake example from http://qt-project.org/doc/qt-5.0/qtdoc/cmake-manual.html
 # Find the QtWidgets library
-find_package(Qt5Core)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Qml REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
 find_package(QpjSip)
 

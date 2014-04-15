@@ -3,9 +3,10 @@ if(CMAKE_CROSSCOMPILING)
     include(Coverage)
 endif(CMAKE_CROSSCOMPILING)
 
-find_package(QtTestUtil)
-
 set(CMAKE_AUTOMOC OFF)
+
+# cmake example from http://qt-project.org/doc/qt-5.1/qtdoc/cmake-manual.html
+find_package(Qt5Test REQUIRED)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -17,13 +18,12 @@ configure_file (
 include_directories(
     "../src"
     "${CMAKE_CURRENT_BINARY_DIR}/../src"
-    "${QT_TEST_UTIL_INCLUDE_DIRS}"
 )
 
 set(test_additional_lib
     qphone
-    ${QT_TEST_UTIL_LIBRARIES}
-    ${QT_GUI_TEST_UTIL_LIBRARIES}
+    Qt5::Qml
+    Qt5::Quick
 )
 
 #set(test_additional
@@ -31,4 +31,3 @@ set(test_additional_lib
 #)
 
 qt_test(foo exampletest.cpp)
-

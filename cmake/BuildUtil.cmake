@@ -16,12 +16,9 @@ MACRO(qt_test testname testsrc)
      add_custom_target(moc_${testname}_target DEPENDS ${test_${testname}_MOC})
      add_executable(test_${testname} ${test_${testname}_SRCS} ${special_additional} ${test_additional})
      add_dependencies(test_${testname} moc_${testname}_target)
-     target_link_libraries(test_${testname} ${test_additional_lib})
 
-     if(${QT5})
-        qt5_use_modules(test_${testname} Test Widgets Sql)
-     endif(${QT5})
-
+     target_link_libraries(test_${testname} ${test_additional_lib} Qt5::Test)
+  
      add_test(test${testname} ${EXECUTABLE_OUTPUT_PATH}/test_${testname})
 ENDMACRO()
 

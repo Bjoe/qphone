@@ -2,28 +2,93 @@
 
 namespace qphone {
 
-QPhoneHandler::QPhoneHandler(QPhone *aPhone, QPhoneView *aView, QObject *parent) :
-    QObject(parent), phone(aPhone), view(aView), callId(), code(PJSIP_SC_RINGING)
+QPhoneHandler::QPhoneHandler(QObject *parent) :
+    QObject(parent), callId(), code(PJSIP_SC_RINGING)
 {
-    view->setButtonText("Anrufen");
-    connect(view, SIGNAL(accept()), SLOT(onCall()));
+}
+
+QString QPhoneHandler::state() const
+{
+    return m_state;
+}
+
+void QPhoneHandler::setState(const QString &state)
+{
+    m_state = state;
+    emit stateChanged();
+}
+
+QString QPhoneHandler::remoteInfo() const
+{
+    return m_remoteInfo;
+}
+
+void QPhoneHandler::setRemoteInfo(const QString &info)
+{
+    m_remoteInfo = info;
+    emit remoteInfoChanged();
+}
+
+QString QPhoneHandler::callState() const
+{
+    return m_callState;
+}
+
+void QPhoneHandler::setCallState(const QString &state)
+{
+    m_callState = state;
+    emit callStateChanged();
+}
+
+QString QPhoneHandler::mediaState() const
+{
+    return m_mediaState;
+}
+
+void QPhoneHandler::setMediaState(const QString &state)
+{
+    m_mediaState = state;
+    emit mediaStateChanged();
+}
+
+QString QPhoneHandler::callNumber() const
+{
+    return m_number;
+}
+
+void QPhoneHandler::setCallNumber(const QString &number)
+{
+    m_number = number;
+    emit callNumberChanged();
+}
+
+QString QPhoneHandler::accountId() const
+{
+    return m_accountId;
+}
+
+void QPhoneHandler::setAccountId(const QString &accountId)
+{
+    m_accountId = accountId;
+    emit accountIdChanged();
 }
 
 void QPhoneHandler::onIncomingCall(qpjsua::AccountInfo anAccountInfo, qpjsua::CallInfo aCallInfo)
 {
-    view->accountInfoOut(anAccountInfo);
-    view->callInfoOut(aCallInfo);
+    accountInfoOut(anAccountInfo);
+    callInfoOut(aCallInfo);
 
     callId = aCallInfo.getId();
     pjsua_call_answer(callId, code, nullptr, nullptr);
 
-    view->setButtonText("Annehmen");
-    connect(view, SIGNAL(accept()), SLOT(onAccept()));
+    // TODO
+    //view->setButtonText("Annehmen");
+    //connect(view, SIGNAL(accept()), SLOT(onAccept()));
 }
 
 void QPhoneHandler::onCallState(qpjsua::CallInfo aCallInfo)
 {
-    view->callInfoOut(aCallInfo);
+    callInfoOut(aCallInfo);
 
     if(aCallInfo.getInviteState() == PJSIP_INV_STATE_DISCONNECTED) {
       //  view->setButtonText("Anrufen");
@@ -33,7 +98,7 @@ void QPhoneHandler::onCallState(qpjsua::CallInfo aCallInfo)
 
 void QPhoneHandler::onCallMediaState(qpjsua::CallInfo aCallInfo)
 {
-    view->callInfoOut(aCallInfo);
+    callInfoOut(aCallInfo);
 
     if(aCallInfo.getMediaStatus() == PJSUA_CALL_MEDIA_ACTIVE) {
         pjsua_conf_connect(0, aCallInfo.getConferenceSlot());
@@ -47,7 +112,7 @@ void QPhoneHandler::onCallMediaState(qpjsua::CallInfo aCallInfo)
 void QPhoneHandler::onRegStarted(qpjsua::AccountInfo anAccountInfo, bool renew)
 {
     Q_UNUSED(renew);
-    view->accountInfoOut(anAccountInfo);
+    accountInfoOut(anAccountInfo);
 }
 
 void QPhoneHandler::onBusy()
@@ -73,19 +138,64 @@ void QPhoneHandler::onAccept()
 void QPhoneHandler::onHangup()
 {
     pjsua_call_hangup(callId, 0, nullptr, nullptr);
-    view->setButtonText("Anrufen");
-    connect(view, SIGNAL(accept()), SLOT(onCall()));
+
+    // TODO
+    // view->setButtonText("Anrufen");
+    // connect(view, SIGNAL(accept()), SLOT(onCall()));
 }
 
 void QPhoneHandler::onCall()
 {
-    QString callNumber = view->getCallNumber();
-    QByteArray chr = callNumber.toLatin1();
+    QByteArray chr = m_number.toLatin1();
+    int id = m_accountId.toInt();
     pj_str_t uri = pj_str(chr.data());
-    pjsua_call_make_call(phone->getAccountId(), &uri, nullptr, nullptr, nullptr, &callId);
+    pjsua_acc_id accountId = static_cast<pjsua_acc_id>(id);
+    pjsua_call_make_call(accountId, &uri, nullptr, nullptr, nullptr, &callId);
 
-    view->setButtonText("Auflegen");
-    connect(view, SIGNAL(accept()), SLOT(onHangup()));
+    // TODO
+    //view->setButtonText("Auflegen");
+    //connect(view, SIGNAL(accept()), SLOT(onHangup()));
+}
+
+void QPhoneHandler::callInfoOut(qpjsua::CallInfo aCallInfo)
+{
+    m_remoteInfo = aCallInfo.getRemoteInfo();
+    m_callState = aCallInfo.getStateText();
+
+    switch(aCallInfo.getMediaStatus()) {
+    case PJSUA_CALL_MEDIA_NONE:
+        m_mediaState = "NONE";
+        break;
+    case PJSUA_CALL_MEDIA_ACTIVE:
+        m_mediaState = "ACTIVE";
+        break;
+    case PJSUA_CALL_MEDIA_LOCAL_HOLD:
+        m_mediaState = "LOCAL HOLD";
+        break;
+    case PJSUA_CALL_MEDIA_REMOTE_HOLD:
+        m_mediaState = "REMOTE HOLD";
+        break;
+    case PJSUA_CALL_MEDIA_ERROR:
+        m_mediaState = "ERROR";
+        break;
+    default:
+        m_mediaState = "ERROR";
+    }
+    emit mediaStateChanged();
+}
+
+void QPhoneHandler::accountInfoOut(qpjsua::AccountInfo anAccountInfo)
+{
+    m_state.clear();
+
+    if(anAccountInfo.hasRegistartion()) {
+        m_state.append("Client is registered\n");
+    } else {
+        m_state.append("Client is not registered\n");
+    }
+    m_state.append(QString("Status Text: %1\n").arg(anAccountInfo.getStatusText()));
+    m_state.append(QString("Last Error: %1\n").arg(anAccountInfo.getLastError()));
+    emit stateChanged();
 }
 
 } // namespace qphone

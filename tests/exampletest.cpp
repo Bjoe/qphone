@@ -3,10 +3,7 @@
 
 #include "testconfig.h"
 
-#include "testcoverageobject.h"
-
-
-class ExampleTest : public qttestutil::TestCoverageObject
+class ExampleTest : public QObject
 {
     Q_OBJECT
 

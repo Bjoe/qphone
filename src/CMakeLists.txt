@@ -1,12 +1,14 @@
 
 set(QT_SRCS
     qphone.cpp
-    qphoneview.cpp
     qphonehandler.cpp
     call.cpp
+    mainwindowcontroller.cpp
 )
 
-set(QML_PATH "${PROJECT_SOURCE_DIR}/assets/main.qml")
+set(RESOURCES ../resources.qrc)
+
+set(QML_PATH "${PROJECT_SOURCE_DIR}/assets/qml/main.qml")
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -16,8 +18,8 @@ configure_file (
   )
 
 add_library(qphone STATIC ${QT_SRCS})
-qt5_use_modules(qphone Core Quick)
+target_link_libraries(qphone Qt5::Widgets Qt5::Qml ${QPJSIP_LIBRARIES} ${PJSIP_LIBRARIES})
 
-add_executable(phone main.cpp)
-target_link_libraries(phone qphone ${QPJSIP_LIBRARIES} ${PJSIP_LIBRARIES})
-qt5_use_modules(phone Core Quick)
+qt5_add_resources(QRC ${RESOURCES})
+add_executable(phone main.cpp ${QRC})
+target_link_libraries(phone qphone Qt5::Core Qt5::Widgets Qt5::Qml Qt5::Quick)
