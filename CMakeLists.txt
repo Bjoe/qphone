@@ -1,20 +1,22 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.13)
 
-project(QPhone)
+project(QPhone VERSION 0.1.1)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" CACHE PATH "cmake modul path") 
-include(BuildUtil)
+option(QPHONE_TEST OFF "Enable unit test")
 
-# The version number.
-set (Project_VERSION_MAJOR 0)
-set (Project_VERSION_MINOR 1)
-set (Project_VERSION_PATCH 0)
+# Introduce variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
 
-add_definitions(-std=c++11) # -fPIC -fPIE)
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+set(namespace "${PROJECT_NAME}")
 
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
 # QML debuggen
@@ -25,43 +27,43 @@ set(CMAKE_AUTOMOC ON)
 # argument:
 # $ executable -qmljsdebugger=port:3768,block
 
-#SET(ENV{PKG_CONFIG_PATH} "foo/bar/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-# find_package(PkgConfig)
-# pkg_check_modules(FOO foo)
-# include_directories(${FOO_INCLUDE_DIRS})
-# link_directories(${FOO_LIBRARY_DIRS})
-# target_link_libraries(${FOO_LDFLAGS})
-
-# cmake example from http://qt-project.org/doc/qt-5.0/qtdoc/cmake-manual.html
 # Find the QtWidgets library
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Qml REQUIRED)
-find_package(Qt5Quick REQUIRED)
-
-find_package(QpjSip)
-
-#SET(ENV{PKG_CONFIG_PATH} "foo/bar/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-find_package(PkgConfig)
-pkg_check_modules(PJSIP libpjproject)
-link_directories(${PJSIP_LIBRARY_DIRS})
-
-include_directories(
-    "${QPJSIP_INCLUDE_DIRS}"
-    "${PJSIP_INCLUDE_DIRS}"
-    "${PROJECT_SOURCE_DIR}"
-    "${PROJECT_BINARY_DIR}"
-)
-
-if(${DOC})
-    find_doxygen()
-endif(${DOC})
+find_package(Qt5 COMPONENTS Core Widgets Qml Quick REQUIRED)
+find_package(QPjSIP REQUIRED)
 
 add_subdirectory(src)
 
-if(${TEST})
+if(QPHONE_TEST)
     # The following are required to uses CTest, Dart and the Cdash dashboard
     enable_testing(true)
     include(CTest)
     add_subdirectory(tests)
-endif(${TEST})
+endif()
+
+include(CMakePackageConfigHelpers)
+
+# Use:
+# * PROJECT_VERSION
+write_basic_package_version_file(
+    "${version_config}" COMPATIBILITY SameMajorVersion
+)
+
+# Use:
+# * TARGETS_EXPORT_NAME
+# * PROJECT_NAME
+configure_package_config_file(
+    "${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in"
+    "${project_config}"
+    INSTALL_DESTINATION "${config_install_dir}"
+)
+
+install(
+    FILES "${project_config}" "${version_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    NAMESPACE "${namespace}::"
+    DESTINATION "${config_install_dir}"
+)
